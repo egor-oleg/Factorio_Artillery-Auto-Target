@@ -5,7 +5,7 @@ Installation
 
 How to use
 
-   1. Run the script: python aim.py
+   1. Run the script: python Artillery-Auto-Target.py
    2. Open Factorio map and hold your Artillery Remote.
    3. Press F6 and drag a box over the area you want to hit.
 
@@ -20,3 +20,4 @@ MWheel	Preview		Adjust Shot Density
 ENTER		Preview		Confirm & Fire
 
 L-Click		Preview		Cancel Selection
+
