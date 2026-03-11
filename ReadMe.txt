@@ -11,11 +11,12 @@ How to use
 
 Key		Context		Action
 
-F6		Always		Start Selection (Drag Box)
-F5		Always		Emergency Stop
+F6		   Always		Start Selection (Drag Box)
+F5		   Always		Emergency Stop
 TAB		Preview		Toggle Mode: Uniform (Area) / Center (Cluster)
 SHFT+TAB	Preview		Lumberjack Mode: Target trees
-S		Preview		Pathing: Smart (Nearest) / Direct (Rows)
-MWheel		Preview		Adjust Shot Density
+S		   Preview		Pathing: Smart (Nearest) / Direct (Rows)
+MWheel	Preview		Adjust Shot Density
 ENTER		Preview		Confirm & Fire
+
 L-Click		Preview		Cancel Selection
