@@ -9,12 +9,10 @@ def check_and_install():
         'PIL': 'Pillow',
         'tkinter': 'tk'
     }
-    
     for module, package in modules.items():
         try:
             __import__(module)
         except ImportError:
-            print(f"install... {package}...")
             subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
 check_and_install()
@@ -33,7 +31,7 @@ except:
     pass
 
 pyautogui.PAUSE = 0.001
-ENEMY_COLORS = [(176, 33, 29), (255, 54, 49)]
+ENEMY_COLORS = [(158, 20, 20), (250, 28, 29)]
 FOREST_COLORS = [(34, 49, 21), (50, 65, 30), (45, 60, 25)]
 TOLERANCE = 10
 SCAN_STEP = 4  
@@ -47,7 +45,6 @@ def get_dist(p1, p2):
 def sort_points(points):
     if not points or path_mode == "Direct":
         return sorted(points, key=lambda p: (p[1], p[0]))
-    
     pts = list(points)
     sorted_pts = [pts.pop(0)]
     while pts:
@@ -94,11 +91,13 @@ def process_pixels(area, raw_data, dist):
     
     if target_mode in ["Uniform", "Lumberjack"]:
         for px, py in found_pixels:
+            if len(points) > 5000: return "OVERLOAD"
             if not any(get_dist((px, py), p) < dist for p in points):
                 points.append((px, py))
     else:
         clusters = []
         for px, py in found_pixels:
+            if len(clusters) > 5000: return "OVERLOAD"
             found = False
             for c in clusters:
                 if get_dist((px, py), c['avg']) < dist:
@@ -122,17 +121,31 @@ def show_preview(area, raw_data):
     def redraw():
         canvas.delete("all")
         canvas.create_rectangle(area[0], area[1], area[2], area[3], outline='yellow')
-        res["pts"] = process_pixels(area, raw_data, current_cluster_dist)
-        p_color = {"Uniform": "#00FF00", "Center": "#00FFFF", "Lumberjack": "#8B4513"}[target_mode]
-        if target_mode != "Lumberjack" and len(res["pts"]) > 1:
-            l_col = "white" if path_mode == "Smart" else "gray30"
-            for i in range(len(res["pts"])-1):
-                canvas.create_line(res["pts"][i][0], res["pts"][i][1], res["pts"][i+1][0], res["pts"][i+1][1], fill=l_col, dash=(2, 2))
-        for x, y in res["pts"]:
-            canvas.create_oval(x-2, y-2, x+2, y+2, fill=p_color, outline="white")
-        info = f"[{target_mode}] | {path_mode} | PTS: {len(res['pts'])} | RAD: {current_cluster_dist}\n" \
+        data = process_pixels(area, raw_data, current_cluster_dist)
+        
+        if data == "OVERLOAD":
+            res["pts"] = []
+            canvas.create_rectangle(area[0], area[1], area[0]+550, area[1]+60, fill="#721c24", outline="#f5c6cb")
+            canvas.create_text(area[0]+10, area[1]+10, 
+                               text="⚠️ HIGH DENSITY: OVER 5000 POINTS\nCalculation stopped, CPUs are expensive nowadays!", 
+                               fill="#f8d7da", font=("Consolas", 11, "bold"), anchor="nw")
+            pts_count = "5000+"
+            y_info = area[1]+65
+        else:
+            res["pts"] = data
+            pts_count = len(res["pts"])
+            y_info = area[1]+5
+            p_color = {"Uniform": "#00FF00", "Center": "#00FFFF", "Lumberjack": "#8B4513"}[target_mode]
+            if target_mode != "Lumberjack" and len(res["pts"]) > 1:
+                l_col = "white" if path_mode == "Smart" else "gray30"
+                for i in range(len(res["pts"])-1):
+                    canvas.create_line(res["pts"][i][0], res["pts"][i][1], res["pts"][i+1][0], res["pts"][i+1][1], fill=l_col, dash=(2, 2))
+            for x, y in res["pts"]:
+                canvas.create_oval(x-2, y-2, x+2, y+2, fill=p_color, outline="white")
+
+        info = f"[{target_mode}] | {path_mode} | PTS: {pts_count} | RAD: {current_cluster_dist}\n" \
                f"[TAB] Mode | [S] Path | [MWheel] Rad | [ENT] Fire"
-        canvas.create_text(area[0]+5, area[1]+5, text=info, fill="#00FF00", font=("Consolas", 10, "bold"), anchor="nw")
+        canvas.create_text(area[0]+5, y_info, text=info, fill="#00FF00", font=("Consolas", 10, "bold"), anchor="nw")
 
     def handle_keys(e):
         global path_mode, target_mode, current_cluster_dist
@@ -163,7 +176,7 @@ def show_preview(area, raw_data):
 
     preview.bind("<Key>", handle_keys)
     preview.bind("<MouseWheel>", on_wheel)
-    preview.bind("<Return>", lambda e: [res.update({"go": True}), preview.destroy()])
+    preview.bind("<Return>", lambda e: [res.update({"go": True}), preview.destroy()] if res["pts"] else None)
     preview.bind("<Button-1>", lambda e: preview.destroy())
     redraw()
     preview.focus_force()
