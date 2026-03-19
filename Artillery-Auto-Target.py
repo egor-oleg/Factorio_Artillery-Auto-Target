@@ -127,7 +127,7 @@ def show_preview(area, raw_data):
             res["pts"] = []
             canvas.create_rectangle(area[0], area[1], area[0]+550, area[1]+60, fill="#721c24", outline="#f5c6cb")
             canvas.create_text(area[0]+10, area[1]+10, 
-                               text="⚠️ HIGH DENSITY: OVER 5000 POINTS\nCalculation stopped, CPUs are expensive nowadays!", 
+                               text="⚠️ HIGH DENSITY: OVER 5000 POINTS\nCalculation stopped!", 
                                fill="#f8d7da", font=("Consolas", 11, "bold"), anchor="nw")
             pts_count = "5000+"
             y_info = area[1]+65
