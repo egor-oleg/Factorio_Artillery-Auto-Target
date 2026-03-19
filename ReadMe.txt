@@ -21,3 +21,6 @@ ENTER		Preview		Confirm & Fire
 
 L-Click		Preview		Cancel Selection
 
+⚠️
+If the script doesn't find nests, check Factorio color settings or enter your own values in the line:
+ENEMY_COLORS = [(158, 20, 20), (250, 28, 29),]
